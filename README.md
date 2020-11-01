@@ -55,14 +55,38 @@ due to unwanted signals which are generally produced by the reflections from the
 
 we make a 2d Clutter Thresholding to decrease the false alarm number.
 
-<img src="images/D.png" width="820" height="248" />
+*Implementation steps for the 2D CFAR:
+
+
+A-Determine the number of Training cells for each dimension. Similarly, pick the number of guard cells.
+
+I startred with random start and by experment the fianls values were:
+Tr=14;
+Td=6;
+Gr=6;
+Gd=3;
+offset=2;
+
+B-Slide the cell under test across the complete matrix. Make sure the CUT has margin for Training and Guard cells from the edges.
+
+
+C-For every iteration sum the signal level within all the training cells. To sum convert the value from logarithmic to linear using db2pow function.
+
+D-Average the summed values for all of the training cells used. After averaging convert it back to logarithmic using pow2db.
+    
+E-Further add the offset to it to determine the threshold.
+
+F-Next, compare the signal under CUT against this threshold.
+    If the CUT level > threshold assign it a value of 1, else equate it to 0.
+
+
+<img src="images/F.png" width="820" height="248" />
 
 <img src="images/7.png" width="820" height="248" />
 
 The process above will generate a thresholded block, which is smaller than the Range Doppler Map as the CUTs cannot be located at the edges of the matrix due to the presence of Target and Guard cells. Hence, those cells will not be thresholded. 
 To keep the map size same as it was before CFAR, equate all the non-thresholded cells to 0.
 
-
-<img src="images/E.png" width="820" height="248" />
+RDM(RDM ~= 1 & RDM ~= 0) = 0;
 
 <img src="images/6.png" width="820" height="248" />
