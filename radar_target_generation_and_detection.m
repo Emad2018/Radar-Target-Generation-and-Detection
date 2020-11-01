@@ -167,7 +167,7 @@ Gr=6;
 Gd=3;
 % *%TODO* :
 % offset the threshold by SNR value in dB
-offset=6;
+offset=2;
 % *%TODO* :
 %Create a vector to store noise_level for each iteration on training cells
 noise_level = zeros(1,1);
@@ -183,11 +183,12 @@ noise_level = zeros(1,1);
 %Further add the offset to it to determine the threshold. Next, compare the
 %signal under CUT with this threshold. If the CUT level > threshold assign
 %it a value of 1, else equate it to 0.
-for i=Tr+Gr+1:Nr/2-(Gr+Tr)
-    for j=Td+Gd+1:Nd-(Gd+Td)
+threshold_size=( (2*Td+2*Gd+1)*(2*Tr+2*Gr+1) - (2*Gd+1)*(2*Gr+1) );
+for i=(Tr+Gr+1):((Nr/2)-(Gr+Tr))
+    for j=(Td+Gd+1):(Nd-(Gd+Td))
         noise_level=0;
-        for p=i-(Tr+Gr):i+Tr+Gr
-            for q=j-(Td+Gd):j+Td+Gd
+        for p=(i-(Tr+Gr)):(i+Tr+Gr)
+            for q=(j-(Td+Gd)):(j+Td+Gd)
                 
    % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
    % CFAR
@@ -196,7 +197,7 @@ for i=Tr+Gr+1:Nr/2-(Gr+Tr)
                 end
             end
         end
-        threshold=pow2db(noise_level/2*(Td+Gd+1)*2*(Tr+Gr+1)-(Gr*Gd)-1);
+        threshold=pow2db(noise_level/threshold_size);
 		threshold=threshold*offset;
 		CUT=RDM(i,j);
 		if(CUT<threshold)
@@ -213,35 +214,7 @@ end
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0.  
 
-for i=1:Tr+Gr
-    for j=1:Nd
-        
-    RDM(i,j)=0;
-
-    end 
-end
-for i=(Nr/2)-(Gr+Tr):Nr/2
-    for j=1:Nd
-        
-    RDM(i,j)=0;
-
-    end 
-end
-for i=1:Nr/2
-    for j=1:(Gd+Td)
-        
-    RDM(i,j)=0;
-
-    end 
-end
-
-for i=1:Nr/2
-    for j=Nd-(Gd+Td):Nd
-        
-    RDM(i,j)=0;
-
-    end 
-end
+RDM(RDM ~= 1 & RDM ~= 0) = 0;
 
 
 % *%TODO* :
